@@ -4,13 +4,12 @@ def two_sum(nums: List[int], target: int) -> List[int]:
     result = [-1, -1]
 
     # there are len(nums)*2 unique combinations as (i+j) == (j,i)
-    # we have to subtract 1 since we're counting from 0
-    checked = [False for i in range(len(nums) * 2)]
+    checked = [False for i in range(len(nums) * 2 - 1)]
 
     for i in nums:
         for j in nums:
             if (checked[i+j] == False) and (i + j == target):
-                print(f'{i} + {j} = {i+j}')
+                return [i,j]
             checked[i+j] = True
     return result
 
