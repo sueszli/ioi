@@ -6,8 +6,8 @@ def is_palindrome(x: int) -> bool:
     half_len: int = math.floor(len / 2.0)
 
     for i in range(half_len):
-        mask = int(math.pow(10, i))
-        print(mask)
+        right_mask = int(math.pow(10, i))
+        print(x / right_mask)
 
     return False
 
