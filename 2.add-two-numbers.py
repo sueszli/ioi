@@ -8,54 +8,38 @@ class ListNode:
         self.next = next
 
 
-def num_to_list(num: int) -> ListNode:
-    root = ListNode(num % 10)
-    curr = root
-
-    num = num // 10
-    while num != 0:
-        curr.next = ListNode(num % 10)
-        curr = curr.next
-        num = num // 10
-
-    return root
-
-
-def list_to_num(l: ListNode) -> int:
-    assert l != None
-    c = 0
-    sum = l.val
-    while l.next != None:
-        l = l.next
-        c += 1
-        sum += int(l.val + math.pow(10, c))
-    return sum
-
-
 def addTwoNumbers(l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
-    assert l1 != None and l2 != None
-    if l1 == None:
-        return l2
-    if l2 == None:
-        return l1
+    temp = ListNode()
+    current = temp
+    p1, p2 = l1, l2
+    carry = 0
 
-    l1_num = list_to_num(l1)
-    l2_num = list_to_num(l2)
-    return num_to_list(l1_num + l2_num)
+    while p1 or p2 or carry:
+        total = (p1.val if p1 else 0) + (p2.val if p2 else 0) + carry
+        store = total % 10
+        carry = total // 10
+
+        current.next = ListNode(store)
+        current = current.next
+        if p1:
+            p1 = p1.next
+        if p2:
+            p2 = p2.next
+
+    return temp.next  # move 1 node, to get actual head
 
 
-def print_list(l: Optional[ListNode]) -> str:
-    assert l != None
-    string = "list: "
-    curr = l
-    while curr != None:
-        string += f"({curr.val})"
-        curr = curr.next
-    return string
+l1 = ListNode(2)
+l1.next = ListNode(4)
+l1.next.next = ListNode(3)
 
+l2 = ListNode(5)
+l2.next = ListNode(6)
+l2.next.next = ListNode(4)
 
-arg1 = 21
-arg2 = 1
-result_list = addTwoNumbers(num_to_list(arg1), num_to_list(arg2))
-assert result_list != None
-print(f"{arg1} + {arg2} = {list_to_num(result_list)}")
+# sum
+sum = addTwoNumbers(l1, l2)
+print("solution: ")
+while sum != None:
+    print(sum.val, end="")
+    sum = sum.next
