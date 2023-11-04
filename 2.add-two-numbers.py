@@ -19,12 +19,12 @@ def addTwoNumbers(l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[Li
         store = total % 10
         carry = total // 10
 
-        current.next = ListNode(store)
-        current = current.next
         if p1:
             p1 = p1.next
         if p2:
             p2 = p2.next
+        current.next = ListNode(store)
+        current = current.next
 
     return temp.next  # move 1 node, to get actual head
 
