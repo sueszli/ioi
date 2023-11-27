@@ -15,6 +15,6 @@ while is_empty(deque1) or is_empty(deque2):
     print(winner_val)
     merged.append(winner_val)
 
-# WIP
+# WIP .......
 
 print(merged)
