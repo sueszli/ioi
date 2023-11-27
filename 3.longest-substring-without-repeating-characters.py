@@ -1,7 +1,7 @@
 from collections import deque
 
 
-# simple, good perf
+# deque: simple, good perf
 def window_slider_deque(s: str) -> int:
     res = 0
     q = deque()
@@ -16,7 +16,7 @@ def window_slider_deque(s: str) -> int:
     return res
 
 
-# simple, bad perf
+# set: simple, bad perf
 def window_slider_set(s: str) -> int:
     char_set = set()
     max_length = 0
@@ -33,7 +33,7 @@ def window_slider_set(s: str) -> int:
     return max_length
 
 
-# complex, good perf
+# dict: complex, good perf
 def window_slider_dict(s: str) -> int:
     char_index = dict()  # { char: index + 1 }
     max_length = 0
