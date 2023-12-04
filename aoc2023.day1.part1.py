@@ -10,4 +10,4 @@ num_lines = ["".join(filter(str.isdigit, line)) for line in lines]
 edge_num_lines = [int(num[0] + num[-1]) for num in num_lines]
 total_sum = sum(edge_num_lines)
 
-print(f"solution:{total_sum}")
+print(f"solution: {total_sum}")
