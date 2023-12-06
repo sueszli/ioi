@@ -1,3 +1,6 @@
+# this solution doesn't work – because it reads tokens from left to right.
+# the exercise wants you to replace "twone" with "21" and not "2ne" (as implemented below)
+
 INPUT = """
 three2twone
 two1nine
