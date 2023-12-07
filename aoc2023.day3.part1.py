@@ -13,16 +13,14 @@ INPUT = """
 
 lines = [line for line in INPUT.split("\n") if line]
 
+is_digit = lambda x, y: x > -1 and x < len(lines) and y > -1 and y < len(lines[x]) and lines[x][y].isdigit()
 
-word_start_indices = set()
+num_start_indices = set()
 
 for iline, line in enumerate(lines):
     for ichar, char in enumerate(line):
         if char == "." or char.isdigit():
             continue
-
-        in_bounds = lambda x, y: x > -1 and x < len(lines) and y > -1 and y < len(line)
-        is_digit = lambda x, y: lines[x][y].isdigit()
 
         neighbours = [
             (iline - 1, ichar - 1),
@@ -35,8 +33,28 @@ for iline, line in enumerate(lines):
             (iline + 1, ichar),
             (iline + 1, ichar + 1),
         ]
-        digit_neighbours = [(x, y) for x, y in neighbours if in_bounds(x, y) and is_digit(x, y)]
+        digit_neighbours = [(x, y) for x, y in neighbours if is_digit(x, y)]
 
-        print(char, "--->", digit_neighbours)
+        print("processing", char)
+        print("\tdigit neighbours of", char, ":", digit_neighbours)
 
-        # indices.update(new_indices)
+        # get start of word
+        for x, y in digit_neighbours:
+            curr = y
+            while is_digit(x, curr):
+                curr -= 1
+            print("\t\tword for", x, y, "starts at", x, curr + 1)
+            num_start_indices.add((x, curr + 1))
+
+# get entire word
+nums = []
+for x, y in num_start_indices:
+    num = ""
+    curr = y
+    while is_digit(x, curr):
+        num += lines[x][curr]
+        curr += 1
+    nums.append(int(num))
+
+print(nums)
+print("sum:", sum(nums))
