@@ -1,3 +1,5 @@
+import math
+
 INPUT = """
 467..114..
 ...*......
@@ -15,7 +17,8 @@ lines = [line for line in INPUT.split("\n") if line]
 
 is_digit = lambda x, y: x > -1 and x < len(lines) and y > -1 and y < len(lines[x]) and lines[x][y].isdigit()
 
-word_dict = {}  # key: start index, value: word
+all_words = {}  # key: start index, value: word
+gear_ratio_sum = 0
 
 for iline, line in enumerate(lines):
     for ichar, char in enumerate(line):
@@ -36,28 +39,30 @@ for iline, line in enumerate(lines):
         ]
         digit_neighbours = [(x, y) for x, y in neighbours if is_digit(x, y)]
 
-        print("processing", char)
-
         # get start of words
         starts_indices = set()
         for x, y in digit_neighbours:
             curr = y
             while is_digit(x, curr):
                 curr -= 1
-            print("\t\tword for", x, y, "starts at", x, curr + 1)
             starts_indices.add((x, curr + 1))
 
         # read words
-        words = []
+        words = {}
         for x, y in starts_indices:
             word = ""
             curr = y
             while is_digit(x, curr):
                 word += lines[x][curr]
                 curr += 1
+            words[(x, y)] = word
 
-            words.append(word)
-            word_dict[(x, y)] = word
+        # update global stores
+        all_words.update(words)
+        if len(words) == 2 and char == "*":
+            nums = [int(word) for word in list(words.values())]
+            gear_ratio_sum += math.prod(nums)
 
-total = sum([int(word) for word in list(word_dict.values())])
-print(f"total: {total}")
+
+print(f"total sum: {sum([int(word) for word in list(all_words.values())])}")
+print(f"gear ratio sum: {gear_ratio_sum}")
