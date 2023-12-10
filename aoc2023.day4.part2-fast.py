@@ -219,9 +219,9 @@ for index, line in enumerate(INPUT.splitlines()):
 
     print("processed: ", card["id"])
 
+
 # copy card ids, hop until no copies left
 history: list[int] = []
-
 id_queue: list[int] = []
 id_queue.extend(range(1, len(CARDS) + 1))
 
@@ -236,13 +236,14 @@ while len(id_queue) > 0:
 
     print("queue length:", len(id_queue))
 
-# print history
-occurences = {}
-for h in history:
-    if h not in occurences.keys():
-        occurences[h] = 0
-    occurences[h] += 1
 
-for k, v in occurences.items():
+# print history
+hs = {}
+for h in history:
+    if h not in hs.keys():
+        hs[h] = 0
+    hs[h] += 1
+
+for k, v in hs.items():
     print(f"card {k}: {v} times")
-print(f"total cards: {sum(occurences.values())}")
+print(f"total cards: {sum(hs.values())}")
