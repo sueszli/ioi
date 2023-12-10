@@ -1,3 +1,7 @@
+from collections import deque
+import time
+
+
 INPUT = """
 Card   1:  8 86 59 90 68 52 55 24 37 69 | 10 55  8 86  6 62 69 68 59 37 91 90 24 22 78 61 58 89 52 96 95 94 13 36 81
 Card   2:  6 42 98  5 17 31 13 36 63 61 | 99 88 14 20 63  5 56 33  6 21 92 13 17  7 31 93 30 74 98 15 11 36 61 42 47
@@ -204,9 +208,10 @@ Card 202: 44 47 79 75 24 50 86 80 62 87 | 66 91 36 15 28 81 57 69 30 14 10 20 27
 Card 203: 59 31 79 81  4 21 24 54 48 62 | 37 90 25 51 70 77 18 17 97 52 40 75 43  3 91 50 87 67 42 15 14 63  6 13  5
 """
 
+
 # parse into read-only data structure
-CARDS = []
-for index, line in enumerate(INPUT.splitlines()):
+CARDS = {}
+for line in INPUT.splitlines():
     if len(line) <= 0:
         continue
     card = {}
@@ -215,35 +220,20 @@ for index, line in enumerate(INPUT.splitlines()):
     card["card_nums"] = [int(elem) for elem in line.split(": ")[1].split(" | ")[1].split(" ") if len(elem) > 0]
     card["match_count"] = len([elem for elem in card["card_nums"] if elem in card["winning_nums"]])
     card["unlocked_card_ids"] = [(card["id"] + i + 1) for i in range(card["match_count"])]
-    CARDS.append(card)
-
-    print("processed: ", card["id"])
+    CARDS[card["id"]] = card
 
 
-# copy card ids, hop until no copies left
-history: list[int] = []
-id_queue: list[int] = []
-id_queue.extend(range(1, len(CARDS) + 1))
+# calculate total num of reads
+total_reads: int = 0
+q: deque[int] = deque()
 
-while len(id_queue) > 0:
-    id = id_queue.pop(0)
-    history.append(id)
+q.extend(range(1, len(CARDS) + 1))
+while len(q) > 0:
+    total_reads += 1
 
-    arr_idx = id - 1
-    card = CARDS[arr_idx]
-    unlocked = card["unlocked_card_ids"]
-    id_queue.extend(unlocked)
+    id = q.popleft()
+    unlocked = CARDS[id]["unlocked_card_ids"]
+    q.extend(unlocked)
+    print("queue length:", len(q))
 
-    print("queue length:", len(id_queue))
-
-
-# print history
-hs = {}
-for h in history:
-    if h not in hs.keys():
-        hs[h] = 0
-    hs[h] += 1
-
-for k, v in hs.items():
-    print(f"card {k}: {v} times")
-print(f"total cards: {sum(hs.values())}")
+print("total_reads:", total_reads)
