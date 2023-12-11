@@ -1,3 +1,4 @@
+import sys
 from collections import deque
 from typing import Callable
 
@@ -91,8 +92,8 @@ if __name__ == "__main__":
     maps = init_maps()  # read only
 
     seeds = maps["seeds"]
-    minlocation: int = 1 << 32
+    minlocation: int = sys.maxsize
     for seed in seeds:
         location = get_location(maps, seed)
         minlocation = min(minlocation, location)
-    print("solution", minlocation)
+    print("solution:", minlocation)
