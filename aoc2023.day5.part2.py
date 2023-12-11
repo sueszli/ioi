@@ -240,6 +240,28 @@ def init_maps():
     return maps
 
 
+def remove_overlaps(ranges: list[range]) -> list[range]:
+    # sort ranges by their start
+    sorted_ranges = sorted(ranges, key=lambda r: r.start)
+
+    non_overlapping_ranges = []
+    curr = sorted_ranges[0]
+
+    for r in sorted_ranges[1:]:
+        # case 1: overlap -> merge, keep curr
+        if curr.stop >= r.start:
+            curr = range(curr.start, max(curr.stop, r.stop))
+        # case 2: no overlap -> add curr, set curr to r
+        else:
+            non_overlapping_ranges.append(curr)
+            curr = r
+
+    # add the last range
+    non_overlapping_ranges.append(curr)
+
+    return non_overlapping_ranges
+
+
 def get_location(maps: dict[str, Callable[[int], int]], seed: int) -> int:
     soil = maps["seed-to-soil map"](seed)
     fertilizer = maps["soil-to-fertilizer map"](soil)
@@ -255,21 +277,56 @@ def get_location(maps: dict[str, Callable[[int], int]], seed: int) -> int:
 if __name__ == "__main__":
     maps = init_maps()  # read only
     seeds = maps["seeds"]
-    seed_pairs = [(seeds[i], seeds[i + 1]) for i in range(0, len(seeds), 2)]
+    seed_ranges: list[range] = [range(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
+    seed_ranges = remove_overlaps(seed_ranges)
 
-    # brute force with cache
-    # --------------------
-    get_location_cache = {}
-    minlocation: int = sys.maxsize
-    for sp in seed_pairs:
-        start = sp[0]
-        end_excl = sp[0] + sp[1]
-        for seed in range(start, end_excl):
-            location = None
-            if seed in get_location_cache:
-                location = get_location_cache[seed]
-            else:
-                location = get_location(maps, seed)
-                get_location_cache[seed] = location
-            minlocation = min(minlocation, location)
-    print(minlocation)
+    # # create a list of non-overlapping ranges
+    # optimized_seed_ranges: list[range] = []
+    # for nr in seed_ranges:
+    #     print(f"nr: {nr} - seed_ranges: {len(seed_ranges)} - optimized_seed_ranges: {len((optimized_seed_ranges))}")
+
+    #     if len(optimized_seed_ranges) == 0:
+    #         optimized_seed_ranges.append(nr)
+    #         continue
+
+    #     is_not_overlapping = lambda r: nr.start >= r.stop or nr.stop <= r.start
+    #     is_subset_or_eq = lambda r: nr.start >= r.start and nr.stop <= r.stop
+    #     is_superset = lambda r: nr.start < r.start and nr.stop > r.stop
+    #     assert (is_not_overlapping(r) or is_subset_or_eq(r) or is_superset(r) for r in seed_ranges)
+
+    #     should_add = True
+    #     for r in optimized_seed_ranges:
+    #         # case 1: non-overlapping -> add if next range is not overlapping
+    #         if is_not_overlapping(r):
+    #             continue
+
+    #         # case 2: subset -> don't add to list
+    #         elif is_subset_or_eq(r):
+    #             should_add = False
+    #             print("case 2")
+    #             break
+
+    #         # case 3: superset -> split into two ranges, check later
+    #         elif is_superset(r):
+    #             seed_ranges.append(range(r.stop, nr.stop))
+    #             seed_ranges.append(range(nr.start, r.start))
+    #             should_add = False
+    #             print("case 3")
+    #             break
+
+    #         # case 4: overlapping -> get non-overlapping range, check later
+    #         else:
+    #             if nr.start < r.start:
+    #                 seed_ranges.append(range(nr.start, r.start))
+    #             else:
+    #                 assert nr.stop > r.stop
+    #                 seed_ranges.append(range(r.stop, nr.stop))
+    #             print("case 4")
+    #             should_add = False
+    #             break
+
+    #     if should_add:
+    #         optimized_seed_ranges.append(nr)
+    #         print("case 1")
+
+    # minlocation: int = sys.maxsize
