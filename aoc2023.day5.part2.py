@@ -278,12 +278,10 @@ if __name__ == "__main__":
     seed_ranges: list[range] = [range(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
     seed_ranges = remove_overlaps(seed_ranges)
 
-    # minimal implementation
-    # -------------------------
+    # v1 ------
     # result = min(get_location(maps, s) for sr in seed_ranges for s in sr)
 
-    # functional implementation
-    # -------------------------
+    # v2 ------
     # from concurrent.futures import ThreadPoolExecutor
     # import concurrent.futures
     # def get_min_location(maps, seed_ranges):
