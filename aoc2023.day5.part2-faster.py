@@ -249,5 +249,5 @@ if __name__ == "__main__":
     for i, r in enumerate(seed_ranges):
         for j, n in enumerate(r):
             minlocation = min(minlocation, localize(n))
-            print(f"seed pair {(i)/(len(seed_ranges) -1) * 100:.2f}%: {(j)/(len(r) -1) * 100:.2f}%")
+            print(f"seed pair {(i)/(len(seed_ranges) -1) * 100:.2f}%: {(j)/(len(r) -1) * 100:.2f}%", end="\r")
     print("solution:", minlocation)
