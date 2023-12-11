@@ -202,32 +202,36 @@ humidity-to-location map:
 
 seeds = list(map(int, INPUT.strip().splitlines()[0].split(":")[1].split()))
 seeds = [(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
-
 blocks = list(map(str.strip, INPUT.split("\n\n")))[1:]
+
 for block in blocks:
-    # get all data lines
+    # get ranges of this block
     ranges = []
     for line in block.splitlines()[1:]:
         ranges.append(list(map(int, line.split())))
 
-    # merge seeds
-    new = []
+    # take each seed through all ranges
+    new_seeds = []
     while len(seeds) > 0:
         s, e = seeds.pop()
 
         for dst, src, step in ranges:
             os = max(s, src)
             oe = min(e, src + step)
-            if os < oe:  # has overlap
-                new.append((os - src + dst, oe - src + dst))
+            if os < oe:
+                # overlap -> apply map
+                new_seeds.append((os - src + dst, oe - src + dst))
+
+                # leftovers -> requeue
                 if os > s:
                     seeds.append((s, os))
                 if e > oe:
                     seeds.append((oe, e))
                 break
         else:
-            new.append((s, e))
+            new_seeds.append((s, e))  # no overlap -> identity
 
-    seeds = new
+    # update seeds after this block
+    seeds = new_seeds
 
 print(min(seeds)[0])

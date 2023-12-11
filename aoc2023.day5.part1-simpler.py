@@ -55,7 +55,7 @@ for block in blocks:
         else:
             new_seeds.append(seed)  # no match -> identity
 
-    # update seeds after this map
+    # update seeds after this block
     seeds = new_seeds
 
 print(min(seeds))
