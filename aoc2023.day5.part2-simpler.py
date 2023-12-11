@@ -1,6 +1,3 @@
-import sys
-from typing import Callable
-
 INPUT = """
 seeds: 565778304 341771914 1736484943 907429186 3928647431 87620927 311881326 149873504 1588660730 119852039 1422681143 13548942 1095049712 216743334 3671387621 186617344 3055786218 213191880 2783359478 44001797
 
@@ -201,55 +198,29 @@ humidity-to-location map:
 0 327948845 367508399
 """
 
+seeds = list(map(int, INPUT.strip().splitlines()[0].split(":")[1].split()))
+seeds = [(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
 
-def get_localizer():
-    maps = {}
-    blocks = list(map(str.strip, INPUT.split("\n\n")))
-    for b in blocks:
-        name = b.split(":")[0].strip()
-        if name.endswith("seeds"):
-            continue
-        data: list[list[int]] = [[int(elem) for elem in row] for row in [elem.split(" ") for elem in b.split(":")[1].strip().splitlines()]]
-        assert name not in maps
-        mapper = lambda data: (lambda x: (lambda row: row[0] + (x - row[1]) if row else x)(next(iter([row for row in data if x >= row[1] and x < (row[1] + row[2])]), None)))
-        maps[name] = mapper(data)
-
-    f1 = maps["seed-to-soil map"]
-    f2 = maps["soil-to-fertilizer map"]
-    f3 = maps["fertilizer-to-water map"]
-    f4 = maps["water-to-light map"]
-    f5 = maps["light-to-temperature map"]
-    f6 = maps["temperature-to-humidity map"]
-    f7 = maps["humidity-to-location map"]
-    return lambda seed: f7(f6(f5(f4(f3(f2(f1(seed)))))))
-
-
-def remove_overlaps(ranges: list[range]) -> list[range]:
-    sorted_ranges = sorted(ranges, key=lambda r: r.start)
-    non_overlapping_ranges = []
-
-    curr = sorted_ranges[0]
-    for r in sorted_ranges[1:]:
-        if curr.stop >= r.start:
-            # case 1: overlap -> merge, keep curr
-            curr = range(curr.start, max(curr.stop, r.stop))
+blocks = list(map(str.strip, INPUT.split("\n\n")))[1:]
+for block in blocks:
+    ranges = []
+    for line in block.splitlines()[1:]:
+        ranges.append(list(map(int, line.split())))
+    new = []
+    while len(seeds) > 0:
+        s, e = seeds.pop()
+        for a, b, c in ranges:
+            os = max(s, b)
+            oe = min(e, b + c)
+            if os < oe:
+                new.append((os - b + a, oe - b + a))
+                if os > s:
+                    seeds.append((s, os))
+                if e > oe:
+                    seeds.append((oe, e))
+                break
         else:
-            # case 2: no overlap -> add curr, set curr to r
-            non_overlapping_ranges.append(curr)
-            curr = r
+            new.append((s, e))
+    seeds = new
 
-    non_overlapping_ranges.append(curr)
-    return non_overlapping_ranges
-
-
-if __name__ == "__main__":
-    seeds = list(map(int, INPUT.strip().splitlines()[0].split(":")[1].split()))
-    seed_ranges: list[range] = remove_overlaps([range(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)])  # optimization: remove range overlaps
-    localize: Callable[[int], int] = get_localizer()
-
-    minlocation: int = sys.maxsize
-    for i, r in enumerate(seed_ranges):
-        for j, n in enumerate(r):
-            minlocation = min(minlocation, localize(n))
-            print(f"seed pair {(i)/(len(seed_ranges) -1) * 100:.2f}%: {(j)/(len(r) -1) * 100:.2f}%", end="\r")
-    print("solution:", minlocation)
+print(min(seeds)[0])
