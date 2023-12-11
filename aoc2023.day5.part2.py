@@ -1,5 +1,4 @@
 import sys
-from collections import deque
 from typing import Callable
 
 
@@ -270,63 +269,32 @@ def get_location(maps: dict[str, Callable[[int], int]], seed: int) -> int:
     temperature = maps["light-to-temperature map"](light)
     humidity = maps["temperature-to-humidity map"](temperature)
     location = maps["humidity-to-location map"](humidity)
-
     return location
 
 
 if __name__ == "__main__":
-    maps = init_maps()  # read only
+    maps = init_maps()
     seeds = maps["seeds"]
     seed_ranges: list[range] = [range(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
     seed_ranges = remove_overlaps(seed_ranges)
 
-    # # create a list of non-overlapping ranges
-    # optimized_seed_ranges: list[range] = []
-    # for nr in seed_ranges:
-    #     print(f"nr: {nr} - seed_ranges: {len(seed_ranges)} - optimized_seed_ranges: {len((optimized_seed_ranges))}")
+    # minimal implementation
+    # -------------------------
+    # result = min(get_location(maps, s) for sr in seed_ranges for s in sr)
 
-    #     if len(optimized_seed_ranges) == 0:
-    #         optimized_seed_ranges.append(nr)
-    #         continue
+    # functional implementation
+    # -------------------------
+    # from concurrent.futures import ThreadPoolExecutor
+    # import concurrent.futures
+    # def get_min_location(maps, seed_ranges):
+    #     with concurrent.futures.ProcessPoolExecutor() as executor:
+    #         future_to_location = {executor.submit(get_location, maps, s): s for sr in seed_ranges for s in sr}
+    #         return min(future.result() for future in concurrent.futures.as_completed(future_to_location))
+    # result = get_min_location(maps, seed_ranges)
 
-    #     is_not_overlapping = lambda r: nr.start >= r.stop or nr.stop <= r.start
-    #     is_subset_or_eq = lambda r: nr.start >= r.start and nr.stop <= r.stop
-    #     is_superset = lambda r: nr.start < r.start and nr.stop > r.stop
-    #     assert (is_not_overlapping(r) or is_subset_or_eq(r) or is_superset(r) for r in seed_ranges)
-
-    #     should_add = True
-    #     for r in optimized_seed_ranges:
-    #         # case 1: non-overlapping -> add if next range is not overlapping
-    #         if is_not_overlapping(r):
-    #             continue
-
-    #         # case 2: subset -> don't add to list
-    #         elif is_subset_or_eq(r):
-    #             should_add = False
-    #             print("case 2")
-    #             break
-
-    #         # case 3: superset -> split into two ranges, check later
-    #         elif is_superset(r):
-    #             seed_ranges.append(range(r.stop, nr.stop))
-    #             seed_ranges.append(range(nr.start, r.start))
-    #             should_add = False
-    #             print("case 3")
-    #             break
-
-    #         # case 4: overlapping -> get non-overlapping range, check later
-    #         else:
-    #             if nr.start < r.start:
-    #                 seed_ranges.append(range(nr.start, r.start))
-    #             else:
-    #                 assert nr.stop > r.stop
-    #                 seed_ranges.append(range(r.stop, nr.stop))
-    #             print("case 4")
-    #             should_add = False
-    #             break
-
-    #     if should_add:
-    #         optimized_seed_ranges.append(nr)
-    #         print("case 1")
-
-    # minlocation: int = sys.maxsize
+    minlocation: int = sys.maxsize
+    for i, seed_range in enumerate(seed_ranges):
+        for j, seed in enumerate(seed_range):
+            minlocation = min(minlocation, get_location(maps, seed))
+            print(f"seed pair {(i)/(len(seed_ranges) -1) * 100:.2f}%: {(j)/(len(seed_range) -1) * 100:.2f}%")
+    print("solution:", minlocation)
