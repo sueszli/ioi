@@ -199,6 +199,7 @@ humidity-to-location map:
 """
 
 # see: https://www.youtube.com/watch?v=NmxHw_bHhGM
+# idea: checking if seed ranges can be merged before appending to new_seeds
 
 seeds = list(map(int, INPUT.strip().splitlines()[0].split(":")[1].split()))
 seeds = [(seeds[i], seeds[i] + seeds[i + 1]) for i in range(0, len(seeds), 2)]
