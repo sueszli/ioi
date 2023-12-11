@@ -69,8 +69,8 @@ for b in blocks:
         maps[name] = gen_mapper(intdata)
 
 
-# traverse from 'seeds' to 'location'
 seeds = maps["seeds"]
+locations = []
 for seed in seeds:
     soil = maps["seed-to-soil map"](seed)
     fertilizer = maps["soil-to-fertilizer map"](soil)
@@ -79,4 +79,8 @@ for seed in seeds:
     temperature = maps["light-to-temperature map"](light)
     humidity = maps["temperature-to-humidity map"](temperature)
     location = maps["humidity-to-location map"](humidity)
+
+    locations.append(location)
     print(f"seed ({seed}) -> location ({location})")
+
+print(min(locations))
