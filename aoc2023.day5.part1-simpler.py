@@ -49,7 +49,7 @@ for block in blocks:
     new_seeds = []
     for seed in seeds:
         for dst, src, step in ranges:
-            if seed in range(src, src + step):
+            if src <= seed < src + step:
                 new_seeds.append(seed - src + dst)  # match -> apply map
                 break
         else:
