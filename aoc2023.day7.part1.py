@@ -6,6 +6,14 @@ KTJJT 220
 QQQJA 483
 """
 
+# 5
+# 4, 1
+# 3, 2
+# 3, 1, 1
+# 2, 2, 1
+# 2, 1, 1, 1
+# 1, 1, 1, 1, 1
+
 from functools import cmp_to_key
 
 cards, bids = zip(*list(map(str.split, INPUT.strip().splitlines())))
