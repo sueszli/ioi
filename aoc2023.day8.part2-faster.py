@@ -791,7 +791,7 @@ def get_steps(curr):
     return steps
 
 
-startpos = [n for n in dic if n.endswith("A")]
-lens = [get_steps(node) for node in startpos]
+startpos = [c for c in dic if c.endswith("A")]
+lens = [get_steps(c) for c in startpos]
 ans = math.lcm(*lens)
 print(ans)
