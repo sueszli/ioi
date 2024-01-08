@@ -6,6 +6,9 @@ def dfs(node, visited, graph):
         dfs(neighbor, visited, graph)
 
 
+# min operations required to connect all computers
+
+
 def minOperations(comp_nodes, comp_from, comp_to):
     # Create a graph from the edges
     graph = {i: set() for i in range(1, comp_nodes + 1)}
