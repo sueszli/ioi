@@ -1,7 +1,8 @@
-# see: https://stackoverflow.com/questions/71826437/parsing-ascii-floor-plan-image-in-python
-# - Read the floor plan below and print the number of chairs per room.
-# - Sort alphabetically by room name.
-
+# assignment:
+# read the floor plan below and print the number of chairs per room.
+# additionally, sort alphabetically by room name
+#
+# example output:
 # ```
 # total:
 # W: 3, P: 2, S: 0, C: 0
@@ -10,6 +11,8 @@
 # office:
 # W: 0, P: 2, S: 0, C: 0
 # ```
+#
+# also see: https://stackoverflow.com/questions/71826437/parsing-ascii-floor-plan-image-in-python
 
 
 FLOOR_PLAN = """
@@ -63,13 +66,17 @@ FLOOR_PLAN = """
                            |                 P   |
                            |                     |
                            +---------------------+
-""".strip().splitlines()
+"""
+
 
 import re
 
-CHAIR_TYPES = "CPSW"
+FLOOR_PLAN = FLOOR_PLAN.splitlines()
+FLOOR_PLAN = [line + " " for line in FLOOR_PLAN][1:]  # regex hack so wall before balcony is detected
+
+CHAIR_TYPES = "WPSC"
 queue = []
-solution = []
+ans = []
 
 for line in FLOOR_PLAN:
     regex_matches = list(re.finditer(r"[^/\\|+-]+", line))
@@ -81,35 +88,43 @@ for line in FLOOR_PLAN:
     new_queue = []
 
     for room in queue:
-        # find regex_matches that are in the room
         rm_in_room = lambda rm, room: max(room["rms"][-1]["start"], rm["start"]) < min(room["rms"][-1]["end"], rm["end"])
         rms = [rm for rm in regex_matches if rm_in_room(rm, room)]
         regex_matches = [rm for rm in regex_matches if not rm_in_room(rm, room)]
 
-        # add regex_matches to room, keep in queue
+        # regex matches are in the room, so add them to the room and keep it in the queue
         if rms:
             room["rms"].extend(rms)
             new_queue.append(room)
-            
-        # find room name and chairs, remove from queue, add to solution
+
+        # no regex matches in the room, so find the name and chairs and remove it from the queue
         else:
             text = "".join([rm["text"] for rm in room["rms"]])
             name = re.search(r"\((?:[A-Za-z]+\s?)+\)", text)
             assert name
             room["name"] = name[0][1:-1]
             room["chairs"] = {f: text.count(f) for f in CHAIR_TYPES}
-            solution.append(room)            
-            print("\t" * 6 + f"completed '{room['name']}' with {room["chairs"]}")
+            ans.append(room)
+            print("\t" * 6 + f"completed '{room['name']}' with {room['chairs']}")
 
     queue = new_queue
-    
+
     for rm in regex_matches:
         queue.append({"name": None, "chairs": {}, "rms": [rm]})
-        print("\t" * 5 + f"\tcreated new room ({rm["start"]}-{rm["end"]})")
+        print("\t" * 5 + f"\tcreated new room ({rm['start']}-{rm['end']})")
 
 
-print("\n\n")
-assert len(queue) == 0, f"queue should be empty, but contains {len(queue)} rooms"
-solution.extend(queue)
-for s in solution:
-    print(s["name"], s["chairs"], len(s["rms"]))
+def pretty_print(ans):
+    assert all(rm["name"] for rm in ans)
+
+    total_chairs = {f: sum(rm["chairs"][f] for rm in ans) for f in CHAIR_TYPES}
+    print(f"total:")
+    print(", ".join(f"{f}: {total_chairs[f]}" for f in CHAIR_TYPES))
+
+    ans = sorted(ans, key=lambda rm: rm["name"])
+    for rm in ans:
+        print(f"{rm['name']}:")
+        print(", ".join(f"{f}: {rm['chairs'][f]}" for f in CHAIR_TYPES))
+
+
+pretty_print(ans)
