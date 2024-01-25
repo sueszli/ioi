@@ -92,12 +92,9 @@ for line in FLOOR_PLAN:
         rms = [rm for rm in regex_matches if rm_in_room(rm, room)]
         regex_matches = [rm for rm in regex_matches if not rm_in_room(rm, room)]
 
-        # regex matches are in the room, so add them to the room and keep it in the queue
         if rms:
             room["rms"].extend(rms)
             new_queue.append(room)
-
-        # no regex matches in the room, so find the name and chairs and remove it from the queue
         else:
             text = "".join([rm["text"] for rm in room["rms"]])
             name = re.search(r"\((?:[A-Za-z]+\s?)+\)", text)
