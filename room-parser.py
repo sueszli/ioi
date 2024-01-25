@@ -69,7 +69,7 @@ import re
 
 CHAIR_TYPES = "CPSW"
 queue = []
-ans = []
+solution = []
 
 for line in FLOOR_PLAN:
     regex_matches = list(re.finditer(r"[^/\\|+-]+", line))
@@ -78,41 +78,38 @@ for line in FLOOR_PLAN:
         continue
 
     print(f"{line}")
+    new_queue = []
 
     for room in queue:
-        # find room to assign regex match to
-        found = False
-        for rm in regex_matches:
-            last_rm = room["rms"][-1]
-            has_overlap = max(last_rm["start"], rm["start"]) < min(last_rm["end"], rm["end"])
-            if has_overlap:
-                room["rms"].append(rm)
-                regex_matches.remove(rm)
-                found = True
-                break
+        # find regex_matches that are in the room
+        rm_in_room = lambda rm, room: max(room["rms"][-1]["start"], rm["start"]) < min(room["rms"][-1]["end"], rm["end"])
+        rms = [rm for rm in regex_matches if rm_in_room(rm, room)]
+        regex_matches = [rm for rm in regex_matches if not rm_in_room(rm, room)]
 
-        # else set room as complete
-        if not found:
+        # add regex_matches to room, keep in queue
+        if rms:
+            room["rms"].extend(rms)
+            new_queue.append(room)
+            
+        # find room name and chairs, remove from queue, add to solution
+        else:
             text = "".join([rm["text"] for rm in room["rms"]])
             name = re.search(r"\((?:[A-Za-z]+\s?)+\)", text)
             assert name
             room["name"] = name[0][1:-1]
-            room["furn_count"] = {f: text.count(f) for f in CHAIR_TYPES}
-            ans.append(room)            
-            room["complete"] = True
-            print("\t" * 6 + f"completed '{room['name']}' with {room["furn_count"]}")
+            room["chairs"] = {f: text.count(f) for f in CHAIR_TYPES}
+            solution.append(room)            
+            print("\t" * 6 + f"completed '{room['name']}' with {room["chairs"]}")
 
-    # remove completed rooms from queue
-    queue = [r for r in queue if r["complete"] == False]
-
-    # create new rooms in queue with remaining regex matches
+    queue = new_queue
+    
     for rm in regex_matches:
-        queue.append({"name": None, "furn_count": {}, "rms": [rm], "complete": False})
+        queue.append({"name": None, "chairs": {}, "rms": [rm]})
         print("\t" * 5 + f"\tcreated new room ({rm["start"]}-{rm["end"]})")
 
 
 print("\n\n")
 assert len(queue) == 0, f"queue should be empty, but contains {len(queue)} rooms"
-ans.extend(queue)
-for a in ans:
-    print(a["name"], a["furn_count"], len(a["rms"]))
+solution.extend(queue)
+for s in solution:
+    print(s["name"], s["chairs"], len(s["rms"]))
